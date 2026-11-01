@@ -1,0 +1,44 @@
+# AETHER OS package list (live-build package-lists)
+# Base system
+task-laptop
+task-ssh-server
+kbd
+# Desktop / graphics
+plasma-desktop
+plasma-workspace
+kwin-x11
+plasma-discover
+dolphin
+konsole
+systemsettings
+python3-gi
+gir1.2-gtk-3.0
+breeze-icon-theme
+plasma-nm
+plasma-pa
+xserver-xorg
+lightdm
+lightdm-gtk-greeter
+dbus-x11
+mesa-vulkan-drivers
+mesa-utils
+# Audio
+pipewire
+pipewire-pulse
+wireplumber
+# Networking
+network-manager
+iwd
+# Fonts
+fonts-noto
+fonts-noto-color-emoji
+fonts-inter
+# Tools
+git
+curl
+wget
+htop
+neovim
+# Utilities
+polkitd
+xdg-utils

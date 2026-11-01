@@ -1,0 +1,12 @@
+# Keep every text file LF-terminated: the build runs in Debian via WSL, where
+# CRLF breaks shell hooks and live-build configuration.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.iso binary
+*.fd binary
+*.pyc binary
+
+# Patches and generated assets must never be normalised.
+*.patch -text

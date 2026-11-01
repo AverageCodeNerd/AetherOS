@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Aether Welcome
+Comment=First-run guide for the Aether OS desktop
+Exec=/usr/bin/aether-welcome --first-run
+OnlyShowIn=KDE;
+Terminal=false
+X-GNOME-Autostart-enabled=true

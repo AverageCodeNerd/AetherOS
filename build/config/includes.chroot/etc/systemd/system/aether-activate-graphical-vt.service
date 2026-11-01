@@ -1,0 +1,12 @@
+[Unit]
+Description=Activate the AETHER graphical desktop virtual terminal
+After=lightdm.service
+Wants=lightdm.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 15
+ExecStart=/usr/bin/chvt 7
+
+[Install]
+WantedBy=graphical.target

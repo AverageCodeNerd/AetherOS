@@ -1,0 +1,26 @@
+#!/bin/sh
+set -eu
+
+: "${HOME:?The desktop session did not provide HOME}"
+
+config_dir="${HOME}/.config"
+marker="${config_dir}/.aether-default-wallpaper-set"
+wallpaper="/usr/share/wallpapers/Aether/contents/images/2560x1600.png"
+
+if [ -e "$marker" ]; then
+  exit 0
+fi
+
+if [ ! -r "$wallpaper" ]; then
+  echo "Error: Aether default wallpaper is missing: $wallpaper" >&2
+  exit 1
+fi
+
+if ! command -v plasma-apply-wallpaperimage >/dev/null 2>&1; then
+  echo "Error: plasma-apply-wallpaperimage is not installed." >&2
+  exit 1
+fi
+
+plasma-apply-wallpaperimage "$wallpaper"
+install -d -m 0755 "$config_dir"
+install -m 0644 /dev/null "$marker"

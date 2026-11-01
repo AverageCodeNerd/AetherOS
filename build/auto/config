@@ -1,0 +1,32 @@
+#!/bin/sh
+# build/auto/config — live-build configuration for AETHER OS
+set -eu
+
+lb config noauto \
+  --mode debian \
+  --distribution trixie \
+  --architecture amd64 \
+  --binary-images iso-hybrid \
+  --bootloaders "syslinux grub-efi" \
+  --bootappend-live "boot=live components quiet splash" \
+  --debian-installer live \
+  --debian-installer-distribution trixie \
+  --mirror-bootstrap http://deb.debian.org/debian \
+  --mirror-chroot http://deb.debian.org/debian \
+  --mirror-chroot-security http://security.debian.org/debian-security \
+  --mirror-binary http://deb.debian.org/debian \
+  --mirror-binary-security http://security.debian.org/debian-security \
+  --archive-areas "main contrib non-free non-free-firmware" \
+  --security true \
+  --updates true \
+  --backports false \
+  --apt-recommends true \
+  --apt-indices true \
+  --firmware-chroot true \
+  --firmware-binary true \
+  --iso-application "AETHER OS" \
+  --iso-volume "AETHER_OS_13" \
+  --iso-publisher "Aether Project" \
+  --memtest memtest86+ \
+  --win32-loader false \
+  --zsync false

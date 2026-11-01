@@ -1,0 +1,306 @@
+#!/usr/bin/python3
+"""First-run guide for the Aether OS Plasma desktop."""
+
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+COMPLETION_FILE = Path.home() / ".config" / "aether" / "welcome-completed"
+LIVE_SESSION_MARKER = Path("/run/live/medium")
+
+
+def should_show_first_run(
+    completion_file: Path = COMPLETION_FILE,
+    live_session_marker: Path = LIVE_SESSION_MARKER,
+) -> bool:
+    return not completion_file.exists() and not live_session_marker.exists()
+
+
+def mark_completed(completion_file: Path = COMPLETION_FILE) -> None:
+    completion_file.parent.mkdir(parents=True, exist_ok=True)
+    temporary_file = completion_file.with_name(
+        f".{completion_file.name}.{os.getpid()}.tmp"
+    )
+    temporary_file.write_text("completed\n", encoding="utf-8")
+    temporary_file.replace(completion_file)
+
+
+class WelcomeWindow:
+    def __init__(self, Gtk, Gdk, first_run: bool) -> None:
+        self.Gtk = Gtk
+        self.first_run = first_run
+        self.window = Gtk.Window(title="Aether Welcome")
+        self.window.set_default_size(980, 680)
+        self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.set_border_width(0)
+        self.window.connect("destroy", Gtk.main_quit)
+        self._install_theme(Gdk)
+
+        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        self.window.add(root)
+
+        header = Gtk.HeaderBar()
+        header.set_show_close_button(True)
+        header.set_title("Aether Welcome")
+        header.set_subtitle("Make yourself at home")
+        self.window.set_titlebar(header)
+
+        body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        root.pack_start(body, True, True, 0)
+
+        sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        sidebar.set_size_request(220, -1)
+        sidebar.get_style_context().add_class("sidebar")
+        sidebar.set_border_width(22)
+        body.pack_start(sidebar, False, False, 0)
+        self.stack = Gtk.Stack()
+        self.stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        self.stack.set_transition_duration(160)
+
+        for title, name in (
+            ("Welcome", "welcome"),
+            ("Set up your desktop", "setup"),
+            ("Explore Aether", "explore"),
+        ):
+            button = Gtk.Button(label=title)
+            button.set_relief(Gtk.ReliefStyle.NONE)
+            button.connect("clicked", lambda _button, page=name: self.stack.set_visible_child_name(page))
+            sidebar.pack_start(button, False, False, 0)
+
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+        content.set_border_width(36)
+        body.pack_start(content, True, True, 0)
+        content.pack_start(self.stack, True, True, 0)
+
+        self.stack.add_named(self._welcome_page(Gtk), "welcome")
+        self.stack.add_named(self._setup_page(Gtk), "setup")
+        self.stack.add_named(self._explore_page(Gtk), "explore")
+
+        footer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        footer.set_border_width(18)
+        footer.get_style_context().add_class("footer")
+        root.pack_end(footer, False, False, 0)
+
+        note = Gtk.Label(
+            label="You can reopen Aether Welcome any time from the application menu."
+        )
+        note.set_xalign(0)
+        footer.pack_start(note, True, True, 0)
+
+        later = Gtk.Button(label="Close for now")
+        later.connect("clicked", lambda _button: Gtk.main_quit())
+        footer.pack_end(later, False, False, 0)
+
+        finish = Gtk.Button(label="Finish setup")
+        finish.get_style_context().add_class("suggested-action")
+        finish.connect("clicked", self._finish)
+        footer.pack_end(finish, False, False, 0)
+
+        self.window.show_all()
+
+    def _install_theme(self, Gdk) -> None:
+        css = b"""
+            window { background-color: #111827; color: #e5e7eb; }
+            headerbar { background-color: #18243a; color: #f8fafc; }
+            .sidebar { background-color: #0c1525; }
+            .sidebar button { color: #dbeafe; font-size: 14px; padding: 12px; }
+            .footer { background-color: #18243a; }
+            .hero { font-size: 32px; font-weight: 700; color: #f8fafc; }
+            .eyebrow { color: #67e8f9; font-weight: 700; }
+            .muted { color: #aab8ca; }
+            .action-card { background-color: #1b2940; border-radius: 12px; padding: 18px; }
+            .action-card button { margin-top: 10px; }
+        """
+        provider = Gdk.Screen.get_default()
+        if provider is None:
+            return
+        css_provider = self.Gtk.CssProvider()
+        css_provider.load_from_data(css)
+        self.Gtk.StyleContext.add_provider_for_screen(
+            provider,
+            css_provider,
+            self.Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+        )
+
+    def _welcome_page(self, Gtk):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+        eyebrow = Gtk.Label(label="AETHER OS  /  YOUR DESKTOP")
+        eyebrow.set_xalign(0)
+        eyebrow.get_style_context().add_class("eyebrow")
+        page.pack_start(eyebrow, False, False, 0)
+
+        title = Gtk.Label(label="Welcome to Aether.")
+        title.set_xalign(0)
+        title.get_style_context().add_class("hero")
+        page.pack_start(title, False, False, 0)
+
+        introduction = Gtk.Label(
+            label=(
+                "Your desktop is ready. This quick guide points you to display, "
+                "network, personalization, and software settings without changing "
+                "anything unless you choose to."
+            )
+        )
+        introduction.set_xalign(0)
+        introduction.set_line_wrap(True)
+        introduction.set_max_width_chars(78)
+        introduction.get_style_context().add_class("muted")
+        page.pack_start(introduction, False, False, 0)
+
+        ready = Gtk.Label(label="A familiar desktop, made yours.")
+        ready.set_xalign(0)
+        ready.set_margin_top(18)
+        ready.get_style_context().add_class("eyebrow")
+        page.pack_start(ready, False, False, 0)
+
+        guidance = Gtk.Label(
+            label=(
+                "Use the Aether Dock at the bottom of the screen to open your "
+                "pinned apps. Open Set up your desktop for system settings and "
+                "software, or Explore Aether for a few starting points."
+            )
+        )
+        guidance.set_xalign(0)
+        guidance.set_line_wrap(True)
+        guidance.set_max_width_chars(78)
+        page.pack_start(guidance, False, False, 0)
+
+        if self.first_run:
+            first = Gtk.Label(label="This guide appears once after installation.")
+            first.set_xalign(0)
+            first.set_margin_top(18)
+            first.get_style_context().add_class("muted")
+            page.pack_start(first, False, False, 0)
+        return page
+
+    def _setup_page(self, Gtk):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        title = Gtk.Label(label="Set up your desktop")
+        title.set_xalign(0)
+        title.get_style_context().add_class("hero")
+        page.pack_start(title, False, False, 0)
+        summary = Gtk.Label(
+            label="Choose a topic to open the existing settings or software tool."
+        )
+        summary.set_xalign(0)
+        summary.get_style_context().add_class("muted")
+        page.pack_start(summary, False, False, 0)
+
+        grid = Gtk.Grid(column_spacing=12, row_spacing=12)
+        page.pack_start(grid, False, False, 10)
+        actions = (
+            ("Display", "Resolution, screens, and accessibility", ["systemsettings"]),
+            ("Network", "Wi-Fi and wired connections", ["systemsettings"]),
+            ("Theme and wallpaper", "Make the desktop feel like yours", ["systemsettings"]),
+            ("Software", "Browse available applications", ["plasma-discover"]),
+        )
+        for index, (name, description, command) in enumerate(actions):
+            card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+            card.get_style_context().add_class("action-card")
+            heading = Gtk.Label(label=name)
+            heading.set_xalign(0)
+            heading.set_markup(f"<b>{name}</b>")
+            card.pack_start(heading, False, False, 0)
+            detail = Gtk.Label(label=description)
+            detail.set_xalign(0)
+            detail.set_line_wrap(True)
+            detail.get_style_context().add_class("muted")
+            card.pack_start(detail, False, False, 0)
+            button = Gtk.Button(label="Open")
+            button.connect("clicked", self._launch, command)
+            card.pack_start(button, False, False, 0)
+            grid.attach(card, index % 2, index // 2, 1, 1)
+        return page
+
+    def _explore_page(self, Gtk):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        title = Gtk.Label(label="Explore Aether")
+        title.set_xalign(0)
+        title.get_style_context().add_class("hero")
+        page.pack_start(title, False, False, 0)
+        summary = Gtk.Label(
+            label=(
+                "Aether is built on KDE Plasma. Use these familiar tools today; "
+                "the Aether shell and first-party app suite are being developed."
+            )
+        )
+        summary.set_xalign(0)
+        summary.set_line_wrap(True)
+        summary.get_style_context().add_class("muted")
+        page.pack_start(summary, False, False, 0)
+
+        actions = (
+            ("Files", "Browse documents and folders", ["dolphin"]),
+            ("Dock and desktop", "Adjust panels, widgets, and desktop behavior", ["systemsettings"]),
+            ("Applications", "Find and install available software", ["plasma-discover"]),
+        )
+        for name, description, command in actions:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
+            row.get_style_context().add_class("action-card")
+            labels = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+            heading = Gtk.Label()
+            heading.set_markup(f"<b>{name}</b>")
+            heading.set_xalign(0)
+            labels.pack_start(heading, False, False, 0)
+            detail = Gtk.Label(label=description)
+            detail.set_xalign(0)
+            detail.set_line_wrap(True)
+            detail.get_style_context().add_class("muted")
+            labels.pack_start(detail, False, False, 0)
+            row.pack_start(labels, True, True, 0)
+            button = Gtk.Button(label="Open")
+            button.connect("clicked", self._launch, command)
+            row.pack_end(button, False, False, 0)
+            page.pack_start(row, False, False, 0)
+        return page
+
+    def _launch(self, _button, command: list[str]) -> None:
+        executable = shutil.which(command[0])
+        if executable is None:
+            dialog = self.Gtk.MessageDialog(
+                transient_for=self.window,
+                flags=self.Gtk.DialogFlags.MODAL,
+                message_type=self.Gtk.MessageType.WARNING,
+                buttons=self.Gtk.ButtonsType.CLOSE,
+                text=f"{command[0]} is not available on this system.",
+            )
+            dialog.run()
+            dialog.destroy()
+            return
+        subprocess.Popen([executable, *command[1:]], start_new_session=True)
+
+    def _finish(self, _button) -> None:
+        mark_completed()
+        self.Gtk.main_quit()
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--first-run",
+        action="store_true",
+        help="launch only when setup has not been completed and this is not a live session",
+    )
+    args = parser.parse_args(argv)
+    if args.first_run and not should_show_first_run():
+        return 0
+
+    import gi
+
+    gi.require_version("Gdk", "3.0")
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gdk, Gtk
+
+    WelcomeWindow(Gtk, Gdk, first_run=args.first_run)
+    Gtk.main()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

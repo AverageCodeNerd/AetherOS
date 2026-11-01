@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Aether Welcome
+Comment=Get started with your Aether OS desktop
+Icon=start-here
+Exec=/usr/bin/aether-welcome
+Terminal=false
+Categories=System;Settings;
+StartupNotify=true

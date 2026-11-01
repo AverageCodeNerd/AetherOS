@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      https://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <entry name="launchers" type="StringList">
+      <default>applications:org.kde.dolphin.desktop,applications:org.kde.konsole.desktop,applications:systemsettings.desktop</default>
+    </entry>
+    <entry name="iconSize" type="Int">
+      <default>36</default>
+      <min>24</min>
+      <max>64</max>
+    </entry>
+    <entry name="spacing" type="Int">
+      <default>8</default>
+      <min>0</min>
+      <max>24</max>
+    </entry>
+    <entry name="cornerRadius" type="Int">
+      <default>24</default>
+      <min>8</min>
+      <max>40</max>
+    </entry>
+    <entry name="opacity" type="Int">
+      <default>92</default>
+      <min>45</min>
+      <max>100</max>
+    </entry>
+    <entry name="accentColor" type="Color">
+      <default>#54D6FF</default>
+    </entry>
+  </group>
+</kcfg>

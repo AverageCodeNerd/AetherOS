@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Id": "org.aether.shell.dock",
+        "Name": "Aether Dock",
+        "Description": "A centered, customizable application dock and task switcher",
+        "Version": "0.1.0",
+        "Category": "Windows and Tasks",
+        "License": "GPL-2.0-or-later",
+        "EnabledByDefault": true
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

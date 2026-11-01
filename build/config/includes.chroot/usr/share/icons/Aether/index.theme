@@ -1,0 +1,12 @@
+[Icon Theme]
+Name=Aether
+Comment=Aether OS application icons
+Inherits=breeze-dark,breeze,hicolor
+Directories=scalable/apps
+
+[scalable/apps]
+Size=128
+Type=Scalable
+MinSize=16
+MaxSize=512
+Context=Applications

@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+: "${USER:?LightDM did not provide the session user}"
+
+user_home="$(getent passwd "$USER" | cut -d: -f6)"
+if [ -z "$user_home" ]; then
+  echo "Error: could not find the home directory for $USER." >&2
+  exit 1
+fi
+
+config_dir="${user_home}/.config"
+seed_marker="${config_dir}/.aether-panel-seeded"
+panel_template="/etc/skel/.config/plasma-org.kde.plasma.desktop-appletsrc"
+kdeglobals_template="/etc/skel/.config/kdeglobals"
+welcome_template="/etc/skel/.config/plasma-welcomerc"
+
+if [ -e "$seed_marker" ]; then
+  exit 0
+fi
+
+if [ ! -f "$panel_template" ]; then
+  echo "Error: Aether Plasma panel template is missing: $panel_template" >&2
+  exit 1
+fi
+
+user_group="$(id -gn "$USER")"
+install -d -m 0755 -o "$USER" -g "$user_group" "$config_dir"
+
+seed_file() {
+  template="$1"
+  target="$2"
+  if [ ! -e "$target" ] && [ -f "$template" ]; then
+    install -m 0644 -o "$USER" -g "$user_group" "$template" "$target"
+  fi
+}
+
+seed_file "$panel_template" "${config_dir}/plasma-org.kde.plasma.desktop-appletsrc"
+seed_file "$kdeglobals_template" "${config_dir}/kdeglobals"
+seed_file "$welcome_template" "${config_dir}/plasma-welcomerc"
+install -m 0644 -o "$USER" -g "$user_group" /dev/null "$seed_marker"

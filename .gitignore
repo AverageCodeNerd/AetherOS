@@ -1,0 +1,18 @@
+# Generated build artifacts
+build/*.iso
+build/*.iso.sha256
+build/.build/
+build/chroot/
+build/binary/
+build/logs/
+build/config.backup-*/
+build/virtualbox/
+build/aether-build-wgetrc
+
+# Python
+__pycache__/
+*.py[cod]
+
+# VM test output
+tests/results/
+*.ppm

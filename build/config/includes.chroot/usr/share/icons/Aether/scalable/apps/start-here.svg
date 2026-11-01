@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="aether" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a1efff"/>
+      <stop offset="1" stop-color="#31b5d2"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#aether)" d="M64 8 112 90h-22l-26-45-26 45H16z"/>
+  <path fill="#e1fbff" d="m64 49 40 71H80L64 91l-16 29H24z"/>
+  <path fill="#12304b" d="m64 75 13 23H51z"/>
+</svg>

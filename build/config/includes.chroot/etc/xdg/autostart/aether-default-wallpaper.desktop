@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Aether Default Wallpaper
+Exec=/usr/local/bin/aether-set-default-wallpaper
+OnlyShowIn=KDE;
+NoDisplay=true

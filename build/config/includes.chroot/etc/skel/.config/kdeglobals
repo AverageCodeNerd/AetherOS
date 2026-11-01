@@ -1,0 +1,9 @@
+[General]
+ColorScheme=BreezeDark
+AccentColor=84,214,255
+
+[Icons]
+Theme=Aether
+
+[KDE]
+SingleClick=false
