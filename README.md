@@ -33,8 +33,9 @@ The desktop and installer have been exercised in disposable QEMU virtual machine
 
 ## Build and test
 
-Build instructions: [docs/BUILD.md](docs/BUILD.md)  
-VM testing and VirtualBox profile: [docs/VM_TESTING.md](docs/VM_TESTING.md)  
+Build instructions: [docs/BUILD.md](docs/BUILD.md)
+
+VM testing and VirtualBox profile: [docs/VM_TESTING.md](docs/VM_TESTING.md)
 Detailed original project requirements and development tracking: [DEVELOPMENT_README.md](DEVELOPMENT_README.md)
 
 The ISO is generated locally and excluded from Git. Do not install to a physical disk for testing; use a disposable virtual machine and verify its virtual disk before confirming any partitioning.
