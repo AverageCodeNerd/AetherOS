@@ -40,6 +40,10 @@ Detailed original project requirements and development tracking: [DEVELOPMENT_RE
 
 The ISO is generated locally and excluded from Git. Do not install to a physical disk for testing; use a disposable virtual machine and verify its virtual disk before confirming any partitioning.
 
+
+
+Once AetherOS is in version 1.0, i will release the operating system as a single .iso file to make installing it way easier. Stay Tuned!
+
 ## Contributing
 
 This project is under active development. Issues and focused contributions are welcome; please include reproduction steps and test results for bug reports.
